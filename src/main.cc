@@ -3,8 +3,83 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <algorithm>
+#include <bitset>
 
 using namespace std;
+
+vector<string> sortCombination(vector<string> combinations)
+{
+    vector<int> numVec;
+
+    for (size_t i = 0; i < combinations.size(); i++)
+    {
+        for (size_t j = i + 1; j < combinations.size(); j++)
+        {
+            if (combinations[i] == combinations[j])
+            {
+                combinations.erase(combinations.begin() + j);
+            }
+        }
+    }
+
+    for (size_t i = 0; i < combinations.size(); i++)
+    {
+        numVec.push_back(stoi(combinations[i], 0, 2));
+    }
+
+    sort(numVec.begin(), numVec.end());
+
+    for (size_t i = 0; i < numVec.size(); i++)
+    {
+        combinations[i] = bitset<4>(numVec[i]).to_string();
+    }
+
+    return combinations;
+}
+
+void exhaustiveMethod(string combination, vector<string> &combinations)
+{
+    bool dontcareExist = false;
+    int dontcareIndex = 0;
+    for (size_t i = 0; i < combination.length(); i++)
+    {
+        if (combination[i] == '-')
+        {
+            dontcareExist = true;
+            dontcareIndex = i;
+            break;
+        }
+    }
+
+    if (dontcareExist)
+    {
+        combination[dontcareIndex] = '0';
+        exhaustiveMethod(combination, combinations);
+        combination[dontcareIndex] = '1';
+        exhaustiveMethod(combination, combinations);
+    }
+    else
+    {
+        combinations.push_back(combination);
+    }
+}
+
+void debugOutput(const vector<string> &trueCombination,
+                 const vector<string> &dontCareCombination)
+{
+    for (auto &trueCom : trueCombination)
+    {
+        cout << trueCom << endl;
+    }
+
+    cout << endl;
+
+    for (auto &dontCare : dontCareCombination)
+    {
+        cout << dontCare << endl;
+    }
+}
 
 void commendHandler(ifstream &inputFile, ofstream &outputFile,
                     const bool &debugMode)
@@ -13,9 +88,8 @@ void commendHandler(ifstream &inputFile, ofstream &outputFile,
     string line;
     int i = 0, o = 0, p = 0;
     vector<char> ilb;
-    vector<vector<string>> sheet;
-    vector<string> logicSheet;
     vector<string> trueCombination;
+    vector<string> dontCareCombination;
 
     while (getline(inputFile, line))
     {
@@ -24,15 +98,15 @@ void commendHandler(ifstream &inputFile, ofstream &outputFile,
 
         ss >> command;
 
-        if (command == ".i")
+        if (command == ".i") // 讀取有幾個邏輯變數
         {
             ss >> i;
         }
 
-        else if (command == ".o")
+        else if (command == ".o") // 讀取有幾個輸出結果
             ss >> o;
 
-        else if (command == ".ilb")
+        else if (command == ".ilb") // 讀取邏輯變數符號
         {
             for (size_t c = 0; c < i; c++)
             {
@@ -42,21 +116,29 @@ void commendHandler(ifstream &inputFile, ofstream &outputFile,
             }
         }
 
-        else if (command == ".ob")
+        else if (command == ".ob") // 讀取輸出結果符號
             ss >> ob;
 
-        else if (command == ".p")
+        else if (command == ".p") // 讀取會有幾組邏輯組合
             ss >> p;
 
+        // 讀取邏輯組合
         else if (command[0] == '1' ||
                  command[0] == '-' ||
                  command[0] == '0')
         {
-            trueCombination.push_back(command);
+            char logicSign;
+            ss >> logicSign;
+
+            if (logicSign == '1')
+                exhaustiveMethod(command, trueCombination);
+            else if (logicSign == '-')
+                dontCareCombination.push_back(command);
         }
 
         else if (command == ".e")
         {
+            trueCombination = sortCombination(trueCombination);
         }
 
         else
@@ -64,6 +146,7 @@ void commendHandler(ifstream &inputFile, ofstream &outputFile,
     }
     if (debugMode == true)
     {
+        debugOutput(trueCombination, dontCareCombination);
     }
 }
 
