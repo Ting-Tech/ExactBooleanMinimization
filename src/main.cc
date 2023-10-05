@@ -146,11 +146,15 @@ void commendHandler(ifstream &inputFile, ofstream &outputFile,
             if (logicSign == '1')
                 exhaustiveMethod(command, trueCombination);
             else if (logicSign == '-')
-                dontCareCombination.push_back(command);
+                exhaustiveMethod(command, dontCareCombination);
         }
 
         else if (command == ".e")
         {
+            for (auto &combination : dontCareCombination)
+            {
+                trueCombination.push_back(combination);
+            }
             numVec = sortCombination(trueCombination);
         }
 
