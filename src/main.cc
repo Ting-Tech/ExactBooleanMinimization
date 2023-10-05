@@ -32,8 +32,8 @@ simplification(const vector<pair<int, string>> &numCombinations)
                         differentCount++;
                         differentIndex = k;
                     }
-                    // else if (differentCount > 1)
-                    //     break;
+                    else if (differentCount > 1)
+                        break;
                 }
                 if (differentCount == 1)
                 {
@@ -47,8 +47,8 @@ simplification(const vector<pair<int, string>> &numCombinations)
                                           string>(resultIndex, resultString));
                 }
             }
-            // else if (numCombinations[j].first > (i + 1))
-            //     break;
+            else if (numCombinations[j].first > (i + 1))
+                break;
         }
     }
     return result;
