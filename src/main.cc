@@ -75,7 +75,7 @@ termList simplification(const termList &_termList)
 
     for (size_t i = 0; i < result.size() - 1; i++)
     {
-        for (size_t j = i + 1; j < result.size() - 1; j++)
+        for (size_t j = i + 1; j < result.size(); j++)
         {
             if (result[i] == result[j])
             {
