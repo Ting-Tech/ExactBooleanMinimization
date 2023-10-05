@@ -5,12 +5,13 @@
 #include <string>
 #include <algorithm>
 #include <bitset>
+#include <map>
 
 using namespace std;
 
-vector<string> sortCombination(vector<string> combinations)
+vector<pair<int, string>> sortCombination(vector<string> combinations)
 {
-    vector<int> numVec;
+    vector<pair<int, string>> numVec;
 
     for (size_t i = 0; i < combinations.size(); i++)
     {
@@ -25,17 +26,20 @@ vector<string> sortCombination(vector<string> combinations)
 
     for (size_t i = 0; i < combinations.size(); i++)
     {
-        numVec.push_back(stoi(combinations[i], 0, 2));
+        int numOf1 = 0;
+        for (size_t j = 0; j < combinations[i].length(); j++)
+        {
+            if (combinations[i][j] == '1')
+                numOf1++;
+        }
+
+        numVec.push_back(pair<int, string>(numOf1,
+                                           combinations[i]));
     }
 
     sort(numVec.begin(), numVec.end());
 
-    for (size_t i = 0; i < numVec.size(); i++)
-    {
-        combinations[i] = bitset<4>(numVec[i]).to_string();
-    }
-
-    return combinations;
+    return numVec;
 }
 
 void exhaustiveMethod(string combination, vector<string> &combinations)
@@ -66,7 +70,8 @@ void exhaustiveMethod(string combination, vector<string> &combinations)
 }
 
 void debugOutput(const vector<string> &trueCombination,
-                 const vector<string> &dontCareCombination)
+                 const vector<string> &dontCareCombination,
+                 const vector<pair<int, string>> &numMap)
 {
     for (auto &trueCom : trueCombination)
     {
@@ -79,6 +84,13 @@ void debugOutput(const vector<string> &trueCombination,
     {
         cout << dontCare << endl;
     }
+
+    cout << endl;
+
+    for (auto &num : numMap)
+    {
+        cout << num.first << " " << num.second << endl;
+    }
 }
 
 void commendHandler(ifstream &inputFile, ofstream &outputFile,
@@ -90,6 +102,7 @@ void commendHandler(ifstream &inputFile, ofstream &outputFile,
     vector<char> ilb;
     vector<string> trueCombination;
     vector<string> dontCareCombination;
+    vector<pair<int, string>> numVec;
 
     while (getline(inputFile, line))
     {
@@ -138,7 +151,7 @@ void commendHandler(ifstream &inputFile, ofstream &outputFile,
 
         else if (command == ".e")
         {
-            trueCombination = sortCombination(trueCombination);
+            numVec = sortCombination(trueCombination);
         }
 
         else
@@ -146,7 +159,7 @@ void commendHandler(ifstream &inputFile, ofstream &outputFile,
     }
     if (debugMode == true)
     {
-        debugOutput(trueCombination, dontCareCombination);
+        debugOutput(trueCombination, dontCareCombination, numVec);
     }
 }
 
