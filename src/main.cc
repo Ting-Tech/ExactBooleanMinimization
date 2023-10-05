@@ -9,6 +9,51 @@
 
 using namespace std;
 
+vector<pair<vector<int>, string>>
+simplification(const vector<pair<int, string>> &numCombinations)
+{
+    vector<pair<vector<int>, string>> result;
+
+    for (size_t i = 0; i < (numCombinations.size() - 1); i++)
+    {
+        for (size_t j = (i + 1); j < numCombinations.size(); j++)
+        {
+            if (numCombinations[j].first ==
+                (numCombinations[i].first + 1))
+            {
+                int differentIndex = 0, differentCount = 0;
+                for (size_t k = 0;
+                     k < (numCombinations[i].second).length();
+                     k++)
+                {
+                    if ((numCombinations[i].second)[k] !=
+                        (numCombinations[j].second)[k])
+                    {
+                        differentCount++;
+                        differentIndex = k;
+                    }
+                    // else if (differentCount > 1)
+                    //     break;
+                }
+                if (differentCount == 1)
+                {
+                    vector<int> resultIndex;
+                    string resultString;
+                    resultIndex.push_back(numCombinations[i].first);
+                    resultIndex.push_back(numCombinations[j].first);
+                    resultString = numCombinations[i].second;
+                    resultString[differentIndex] = '-';
+                    result.push_back(pair<vector<int>,
+                                          string>(resultIndex, resultString));
+                }
+            }
+            // else if (numCombinations[j].first > (i + 1))
+            //     break;
+        }
+    }
+    return result;
+}
+
 vector<pair<int, string>> sortCombination(vector<string> combinations)
 {
     vector<pair<int, string>> numVec;
@@ -71,7 +116,8 @@ void exhaustiveMethod(string combination, vector<string> &combinations)
 
 void debugOutput(const vector<string> &trueCombination,
                  const vector<string> &dontCareCombination,
-                 const vector<pair<int, string>> &numMap)
+                 const vector<pair<int, string>> &numMap,
+                 vector<pair<vector<int>, string>> &threeLitteralTerms)
 {
     for (auto &trueCom : trueCombination)
     {
@@ -91,6 +137,17 @@ void debugOutput(const vector<string> &trueCombination,
     {
         cout << num.first << " " << num.second << endl;
     }
+
+    cout << endl;
+
+    for (auto &pair : threeLitteralTerms)
+    {
+        for (auto &num : pair.first)
+        {
+            cout << num << " ";
+        }
+        cout << pair.second << endl;
+    }
 }
 
 void commendHandler(ifstream &inputFile, ofstream &outputFile,
@@ -103,6 +160,7 @@ void commendHandler(ifstream &inputFile, ofstream &outputFile,
     vector<string> trueCombination;
     vector<string> dontCareCombination;
     vector<pair<int, string>> numVec;
+    vector<pair<vector<int>, string>> threeLitteralTerms;
 
     while (getline(inputFile, line))
     {
@@ -156,6 +214,7 @@ void commendHandler(ifstream &inputFile, ofstream &outputFile,
                 trueCombination.push_back(combination);
             }
             numVec = sortCombination(trueCombination);
+            threeLitteralTerms = simplification(numVec);
         }
 
         else
@@ -163,7 +222,10 @@ void commendHandler(ifstream &inputFile, ofstream &outputFile,
     }
     if (debugMode == true)
     {
-        debugOutput(trueCombination, dontCareCombination, numVec);
+        debugOutput(trueCombination,
+                    dontCareCombination,
+                    numVec,
+                    threeLitteralTerms);
     }
 }
 
