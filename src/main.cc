@@ -9,26 +9,26 @@
 
 using namespace std;
 
-typedef vector<pair<int, pair<vector<int>, string>>> termList;
+typedef vector<pair<int, pair<vector<int>, string>>> termList_t;
 
-termList simplification(const termList &_termList)
+termList_t simplification(const termList_t &inputList)
 {
-    termList result;
+    termList_t result;
 
-    for (size_t i = 0; i < (_termList.size() - 1); i++)
+    for (size_t i = 0; i < (inputList.size() - 1); i++)
     {
-        for (size_t j = (i + 1); j < _termList.size(); j++)
+        for (size_t j = (i + 1); j < inputList.size(); j++)
         {
-            if (_termList[j].first ==
-                (_termList[i].first + 1))
+            if (inputList[j].first ==
+                (inputList[i].first + 1))
             {
                 int differentIndex = 0, differentCount = 0;
                 for (size_t k = 0;
-                     k < ((_termList[i].second).second).length();
+                     k < ((inputList[i].second).second).length();
                      k++)
                 {
-                    if ((_termList[i].second).second[k] !=
-                        (_termList[j].second).second[k])
+                    if ((inputList[i].second).second[k] !=
+                        (inputList[j].second).second[k])
                     {
                         differentCount++;
                         differentIndex = k;
@@ -41,19 +41,19 @@ termList simplification(const termList &_termList)
                     vector<int> resultMidterms;
                     string resultLiteralTerm;
 
-                    for (auto &terms : (_termList[i].second).first)
+                    for (auto &terms : (inputList[i].second).first)
                     {
                         resultMidterms.push_back(terms);
                     }
 
-                    for (auto &terms : (_termList[j].second).first)
+                    for (auto &terms : (inputList[j].second).first)
                     {
                         resultMidterms.push_back(terms);
                     }
 
                     sort(resultMidterms.begin(), resultMidterms.end());
 
-                    resultLiteralTerm = (_termList[i].second).second;
+                    resultLiteralTerm = (inputList[i].second).second;
                     resultLiteralTerm[differentIndex] = '-';
 
                     int group = 0;
@@ -63,12 +63,14 @@ termList simplification(const termList &_termList)
                             group++;
                     }
 
-                    pair<vector<int>, string> pairTerms(resultMidterms, resultLiteralTerm);
-                    result.push_back(pair<int, pair<vector<int>, string>>(group, pairTerms));
+                    pair<vector<int>, string> pairTerms(resultMidterms,
+                                                        resultLiteralTerm);
+                    result.push_back(pair<int, pair<vector<int>,
+                                                    string>>(group, pairTerms));
                     sort(result.begin(), result.end());
                 }
             }
-            else if (_termList[j].first > (i + 1))
+            else if (inputList[j].first > (i + 1))
                 break;
         }
     }
@@ -87,9 +89,9 @@ termList simplification(const termList &_termList)
     return result;
 }
 
-termList sortCombination(vector<string> combinations)
+termList_t sortCombination(vector<string> combinations)
 {
-    termList result;
+    termList_t result;
 
     for (size_t i = 0; i < combinations.size(); i++)
     {
@@ -152,9 +154,9 @@ void exhaustiveMethod(string combination, vector<string> &combinations)
 
 void debugOutput(const vector<string> &trueCombination,
                  const vector<string> &dontCareCombination,
-                 termList &_termList,
-                 termList &_threeLitteralTerms,
-                 termList &_twoLitteralTerms)
+                 termList_t &inputList,
+                 termList_t &_threeLitteralTerms,
+                 termList_t &_twoLitteralTerms)
 {
     for (auto &trueCom : trueCombination)
     {
@@ -170,7 +172,7 @@ void debugOutput(const vector<string> &trueCombination,
 
     cout << endl;
 
-    for (auto &terms : _termList)
+    for (auto &terms : inputList)
     {
         cout << terms.first << " ";
         for (auto &literals : (terms.second).first)
@@ -214,9 +216,9 @@ void commendHandler(ifstream &inputFile, ofstream &outputFile,
     vector<char> ilb;
     vector<string> trueCombination;
     vector<string> dontCareCombination;
-    termList _termList;
-    termList _threeLitteralTerms;
-    termList _twoLitteralTerms;
+    termList_t inputList;
+    termList_t _threeLitteralTerms;
+    termList_t _twoLitteralTerms;
 
     while (getline(inputFile, line))
     {
@@ -269,8 +271,8 @@ void commendHandler(ifstream &inputFile, ofstream &outputFile,
             {
                 trueCombination.push_back(combination);
             }
-            _termList = sortCombination(trueCombination);
-            _threeLitteralTerms = simplification(_termList);
+            inputList = sortCombination(trueCombination);
+            _threeLitteralTerms = simplification(inputList);
             _twoLitteralTerms = simplification(_threeLitteralTerms);
         }
 
@@ -281,7 +283,7 @@ void commendHandler(ifstream &inputFile, ofstream &outputFile,
     {
         debugOutput(trueCombination,
                     dontCareCombination,
-                    _termList,
+                    inputList,
                     _threeLitteralTerms,
                     _twoLitteralTerms);
     }
