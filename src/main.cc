@@ -11,6 +11,62 @@ using namespace std;
 
 typedef vector<pair<int, pair<vector<int>, string>>> termList_t;
 
+pair<vector<pair<char, string>>, vector<pair<char, string>>>
+findEssentialPrimeImplicant(const termList_t &termList)
+{
+    vector<int> epiIndex;
+    vector<pair<char, string>> epi;
+    vector<pair<char, string>> nEPI;
+    map<int, int> mintermsMap; // m幾 在第幾個minterm行
+    for (size_t i = 0; i < termList.size(); i++)
+    {
+        for (size_t j = 0; j < ((termList[i].second).first).size(); j++)
+        {
+            int targetIndex = (((termList[i].second).first)[j]);
+            if (mintermsMap.find(targetIndex) != mintermsMap.end())
+            {
+                mintermsMap[targetIndex] += (i * termList.size());
+            }
+            else
+            {
+                mintermsMap[targetIndex] = i;
+            }
+        }
+    }
+    // for (auto &map : mintermsMap)
+    // {
+    //     cout << map.first << " " << map.second << endl;
+    // }
+
+    for (auto &minterms : mintermsMap)
+    {
+        if (minterms.second < termList.size() - 1)
+        {
+            int mintermIndex = minterms.second;
+            char sign = 'a' + mintermIndex;
+            string notation = (termList[minterms.second].second).second;
+            pair<char, string> epiPair(sign, notation);
+            epi.push_back(epiPair);
+            epiIndex.push_back(minterms.second);
+        }
+    }
+
+    for (size_t i = 0; i < termList.size(); i++)
+    {
+        if (!(count(epiIndex.begin(), epiIndex.end(), i)))
+        {
+            char sign = 'a' + i;
+            string notation = (termList[i].second).second;
+            pair<char, string> nEpiPair(sign, notation);
+            nEPI.push_back(nEpiPair);
+        }
+    }
+
+    pair<vector<pair<char, string>>, vector<pair<char, string>>>
+        result(epi, nEPI);
+    return result;
+}
+
 termList_t simplification(const termList_t &inputList)
 {
     termList_t result;
@@ -156,7 +212,9 @@ void debugOutput(const vector<string> &trueCombination,
                  const vector<string> &dontCareCombination,
                  termList_t &inputList,
                  termList_t &_threeLitteralTerms,
-                 termList_t &_twoLitteralTerms)
+                 termList_t &_twoLitteralTerms,
+                 pair<vector<pair<char, string>>, vector<pair<char, string>>>
+                     primeImplicantPair)
 {
     for (auto &trueCom : trueCombination)
     {
@@ -205,6 +263,20 @@ void debugOutput(const vector<string> &trueCombination,
         }
         cout << (terms.second).second << endl;
     }
+
+    cout << endl;
+
+    for (auto &epi : primeImplicantPair.first)
+    {
+        cout << epi.first << " " << epi.second << endl;
+    }
+
+    cout << endl;
+
+    for (auto &epi : primeImplicantPair.second)
+    {
+        cout << epi.first << " " << epi.second << endl;
+    }
 }
 
 void commendHandler(ifstream &inputFile, ofstream &outputFile,
@@ -219,6 +291,8 @@ void commendHandler(ifstream &inputFile, ofstream &outputFile,
     termList_t inputList;
     termList_t _threeLitteralTerms;
     termList_t _twoLitteralTerms;
+    pair<vector<pair<char, string>>, vector<pair<char, string>>>
+        primeImplicantPair;
 
     while (getline(inputFile, line))
     {
@@ -274,6 +348,7 @@ void commendHandler(ifstream &inputFile, ofstream &outputFile,
             inputList = sortCombination(trueCombination);
             _threeLitteralTerms = simplification(inputList);
             _twoLitteralTerms = simplification(_threeLitteralTerms);
+            primeImplicantPair = findEssentialPrimeImplicant(_twoLitteralTerms);
         }
 
         else
@@ -285,7 +360,8 @@ void commendHandler(ifstream &inputFile, ofstream &outputFile,
                     dontCareCombination,
                     inputList,
                     _threeLitteralTerms,
-                    _twoLitteralTerms);
+                    _twoLitteralTerms,
+                    primeImplicantPair);
     }
 }
 
