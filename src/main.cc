@@ -27,8 +27,8 @@ vector<vector<string>> feasibleSolutions(vector<vector<vector<string>>>
 
 vector<vector<vector<string>>>
 petrickMethod(
-    const pair<vector<pair<string, vector<int>>>, vector<pair<string, vector<int>>>>
-        &piarOfPrimeImplicant)
+    const pair<vector<pair<string, vector<int>>>,
+               vector<pair<string, vector<int>>>> &piarOfPrimeImplicant)
 {
     vector<pair<string, vector<int>>> epi = piarOfPrimeImplicant.first;
     vector<pair<string, vector<int>>> nEpi = piarOfPrimeImplicant.second;
@@ -47,7 +47,8 @@ petrickMethod(
     for (auto &nEpiPair : nEpi)
     {
         vector<int> nEpiMinterms;
-        for (auto it = nEpiPair.second.begin(); it != nEpiPair.second.end(); ++it)
+        for (auto it = nEpiPair.second.begin();
+             it != nEpiPair.second.end(); ++it)
         {
             if (!(find(epiMinterms.begin(),
                        epiMinterms.end(), *it) != epiMinterms.end()))
@@ -161,8 +162,9 @@ findEssentialPrimeImplicant(const termList_t &termList)
         {
             int mintermIndex = minterms.second;
             string notation = (termList[minterms.second].second).second;
-            pair<string, vector<int>> epiPair(notation,
-                                              termList[mintermIndex].second.first);
+            pair<string,
+                 vector<int>>
+                epiPair(notation, termList[mintermIndex].second.first);
             epi.push_back(epiPair);
             epiIndex.push_back(minterms.second);
         }
@@ -290,7 +292,8 @@ termList_t sortCombination(vector<string> combinations)
 
         minterms.push_back(stoi(combinations[i], 0, 2));
         pair<vector<int>, string> pairTerms(minterms, combinations[i]);
-        result.push_back(pair<int, pair<vector<int>, string>>(group, pairTerms));
+        result.push_back(pair<int,
+                              pair<vector<int>, string>>(group, pairTerms));
     }
 
     sort(result.begin(), result.end());
@@ -330,7 +333,8 @@ void debugOutput(const vector<string> &trueCombination,
                  termList_t &inputList,
                  termList_t &_threeLitteralTerms,
                  termList_t &_twoLitteralTerms,
-                 pair<vector<pair<string, vector<int>>>, vector<pair<string, vector<int>>>>
+                 pair<vector<pair<string, vector<int>>>,
+                      vector<pair<string, vector<int>>>>
                      primeImplicantPair,
                  const vector<vector<vector<string>>> &petrickMethod)
 {
