@@ -11,12 +11,133 @@ using namespace std;
 
 typedef vector<pair<int, pair<vector<int>, string>>> termList_t;
 
-pair<vector<pair<char, string>>, vector<pair<char, string>>>
+vector<vector<string>> feasibleSolutions(vector<vector<vector<string>>>
+                                             petrickMethodResult)
+{
+    vector<vector<string>> result;
+
+    for (auto &minterms : petrickMethodResult[0])
+    {
+        if (minterms.size() < 3)
+            result.push_back(minterms);
+    }
+
+    return result;
+}
+
+vector<vector<vector<string>>>
+petrickMethod(
+    const pair<vector<pair<string, vector<int>>>, vector<pair<string, vector<int>>>>
+        &piarOfPrimeImplicant)
+{
+    vector<pair<string, vector<int>>> epi = piarOfPrimeImplicant.first;
+    vector<pair<string, vector<int>>> nEpi = piarOfPrimeImplicant.second;
+    vector<int> epiMinterms;
+    map<int, vector<string>> mintermMap;
+    vector<vector<vector<string>>> result;
+
+    for (auto &epiPair : epi)
+    {
+        for (auto &minterm : epiPair.second)
+        {
+            epiMinterms.push_back(minterm);
+        }
+    }
+
+    for (auto &nEpiPair : nEpi)
+    {
+        vector<int> nEpiMinterms;
+        for (auto it = nEpiPair.second.begin(); it != nEpiPair.second.end(); ++it)
+        {
+            if (!(find(epiMinterms.begin(),
+                       epiMinterms.end(), *it) != epiMinterms.end()))
+            {
+                nEpiMinterms.push_back(*it);
+            }
+        }
+        nEpiPair.second = nEpiMinterms;
+    }
+
+    for (auto &nEpiPair : nEpi)
+    {
+        for (auto &minterm : nEpiPair.second)
+        {
+            mintermMap[minterm].push_back(nEpiPair.first);
+        }
+    }
+
+    for (auto &minterms : mintermMap)
+    {
+        vector<vector<string>> feasibleSolutions;
+        for (auto &minterm : minterms.second)
+        {
+            vector<string> feasibleSolution;
+            feasibleSolution.push_back(minterm);
+            feasibleSolutions.push_back(feasibleSolution);
+        }
+        result.push_back(feasibleSolutions);
+    }
+
+    // while (result.size() != 1)
+    for (size_t x = 0; x < 2; x++)
+    {
+        vector<vector<string>> feasibleSolutions;
+        for (size_t i = 0; i < result[0].size(); i++)
+        {
+            for (size_t j = 0; j < result[1].size(); j++)
+            {
+                vector<string> feasibleSolution;
+                for (auto &value : result[0][i])
+                {
+                    if (!(find(feasibleSolution.begin(),
+                               feasibleSolution.end(),
+                               value) != feasibleSolution.end()))
+                    {
+                        feasibleSolution.push_back(value);
+                    }
+                }
+                for (auto &value : result[1][j])
+                {
+                    if (!(find(feasibleSolution.begin(),
+                               feasibleSolution.end(),
+                               value) != feasibleSolution.end()))
+                    {
+                        feasibleSolution.push_back(value);
+                    }
+                }
+                sort(feasibleSolution.begin(), feasibleSolution.end());
+                if (!(find(feasibleSolutions.begin(),
+                           feasibleSolutions.end(),
+                           feasibleSolution) != feasibleSolutions.end()))
+                {
+                    feasibleSolutions.push_back(feasibleSolution);
+                }
+            }
+        }
+        result.push_back(feasibleSolutions);
+
+        for (size_t i = 0; i < 2; i++)
+        {
+            result[i].clear();
+        }
+
+        vector<vector<vector<string>>> clearResult;
+        for (size_t i = 2; i < result.size(); i++)
+        {
+            clearResult.push_back(result[i]);
+        }
+        result = clearResult;
+    }
+
+    return result;
+}
+
+pair<vector<pair<string, vector<int>>>, vector<pair<string, vector<int>>>>
 findEssentialPrimeImplicant(const termList_t &termList)
 {
     vector<int> epiIndex;
-    vector<pair<char, string>> epi;
-    vector<pair<char, string>> nEPI;
+    vector<pair<string, vector<int>>> epi;
+    vector<pair<string, vector<int>>> nEPI;
     map<int, int> mintermsMap; // m幾 在第幾個minterm行
     for (size_t i = 0; i < termList.size(); i++)
     {
@@ -33,19 +154,15 @@ findEssentialPrimeImplicant(const termList_t &termList)
             }
         }
     }
-    // for (auto &map : mintermsMap)
-    // {
-    //     cout << map.first << " " << map.second << endl;
-    // }
 
     for (auto &minterms : mintermsMap)
     {
         if (minterms.second < termList.size() - 1)
         {
             int mintermIndex = minterms.second;
-            char sign = 'a' + mintermIndex;
             string notation = (termList[minterms.second].second).second;
-            pair<char, string> epiPair(sign, notation);
+            pair<string, vector<int>> epiPair(notation,
+                                              termList[mintermIndex].second.first);
             epi.push_back(epiPair);
             epiIndex.push_back(minterms.second);
         }
@@ -55,14 +172,14 @@ findEssentialPrimeImplicant(const termList_t &termList)
     {
         if (!(count(epiIndex.begin(), epiIndex.end(), i)))
         {
-            char sign = 'a' + i;
             string notation = (termList[i].second).second;
-            pair<char, string> nEpiPair(sign, notation);
+            pair<string, vector<int>> nEpiPair(notation,
+                                               termList[i].second.first);
             nEPI.push_back(nEpiPair);
         }
     }
 
-    pair<vector<pair<char, string>>, vector<pair<char, string>>>
+    pair<vector<pair<string, vector<int>>>, vector<pair<string, vector<int>>>>
         result(epi, nEPI);
     return result;
 }
@@ -213,8 +330,9 @@ void debugOutput(const vector<string> &trueCombination,
                  termList_t &inputList,
                  termList_t &_threeLitteralTerms,
                  termList_t &_twoLitteralTerms,
-                 pair<vector<pair<char, string>>, vector<pair<char, string>>>
-                     primeImplicantPair)
+                 pair<vector<pair<string, vector<int>>>, vector<pair<string, vector<int>>>>
+                     primeImplicantPair,
+                 const vector<vector<vector<string>>> &petrickMethod)
 {
     for (auto &trueCom : trueCombination)
     {
@@ -268,14 +386,39 @@ void debugOutput(const vector<string> &trueCombination,
 
     for (auto &epi : primeImplicantPair.first)
     {
-        cout << epi.first << " " << epi.second << endl;
+        cout << epi.first << " ";
+        for (auto &minterm : epi.second)
+        {
+            cout << minterm << " ";
+        }
+        cout << endl;
     }
 
     cout << endl;
 
     for (auto &epi : primeImplicantPair.second)
     {
-        cout << epi.first << " " << epi.second << endl;
+        cout << epi.first << " ";
+        for (auto &minterm : epi.second)
+        {
+            cout << minterm << " ";
+        }
+        cout << endl;
+    }
+
+    cout << endl;
+
+    for (auto &feasibleSolutions : petrickMethod)
+    {
+        for (auto &feasibleSolution : feasibleSolutions)
+        {
+            for (auto &minterm : feasibleSolution)
+            {
+                cout << "(" << minterm << ")";
+            }
+            cout << " + ";
+        }
+        cout << endl;
     }
 }
 
@@ -291,8 +434,9 @@ void commendHandler(ifstream &inputFile, ofstream &outputFile,
     termList_t inputList;
     termList_t _threeLitteralTerms;
     termList_t _twoLitteralTerms;
-    pair<vector<pair<char, string>>, vector<pair<char, string>>>
+    pair<vector<pair<string, vector<int>>>, vector<pair<string, vector<int>>>>
         primeImplicantPair;
+    vector<vector<vector<string>>> petrickMethodResult;
 
     while (getline(inputFile, line))
     {
@@ -349,6 +493,8 @@ void commendHandler(ifstream &inputFile, ofstream &outputFile,
             _threeLitteralTerms = simplification(inputList);
             _twoLitteralTerms = simplification(_threeLitteralTerms);
             primeImplicantPair = findEssentialPrimeImplicant(_twoLitteralTerms);
+            petrickMethodResult = petrickMethod(primeImplicantPair);
+            feasibleSolutions(petrickMethodResult);
         }
 
         else
@@ -361,7 +507,8 @@ void commendHandler(ifstream &inputFile, ofstream &outputFile,
                     inputList,
                     _threeLitteralTerms,
                     _twoLitteralTerms,
-                    primeImplicantPair);
+                    primeImplicantPair,
+                    petrickMethodResult);
     }
 }
 

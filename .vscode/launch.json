@@ -1,0 +1,28 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "(lldb) Launch",
+      "type": "cppdbg",
+      "request": "launch",
+      // Resolved by CMake Tools:
+      "program": "${command:cmake.launchTargetPath}",
+      "args": [
+        "/Users/chengchienting/GitHub/ExactBooleanMinimization/example/testcase/input1.pla",
+        "/Users/chengchienting/GitHub/ExactBooleanMinimization/example/testcase/outTest1.pla",
+        "debug"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}/build",
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for lldb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
+    }
+  ]
+}
