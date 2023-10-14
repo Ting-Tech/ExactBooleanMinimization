@@ -121,8 +121,7 @@ petrickMethod(
         result.push_back(feasibleSolutions);
     }
 
-    // while (result.size() != 1)
-    for (size_t x = 0; x < 2; x++)
+    while (result.size() != 1)
     {
         vector<vector<string>> feasibleSolutions;
         for (size_t i = 0; i < result[0].size(); i++)
@@ -204,11 +203,13 @@ findEssentialPrimeImplicant(const termList_t &termList)
         {
             int mintermIndex = minterms.second;
             string notation = (termList[minterms.second].second).second;
-            pair<string,
-                 vector<int>>
+            pair<string, vector<int>>
                 epiPair(notation, termList[mintermIndex].second.first);
-            epi.push_back(epiPair);
-            epiIndex.push_back(minterms.second);
+            if (!(find(epi.begin(), epi.end(), epiPair) != epi.end()))
+            {
+                epi.push_back(epiPair);
+                epiIndex.push_back(minterms.second);
+            }
         }
     }
 
@@ -219,7 +220,10 @@ findEssentialPrimeImplicant(const termList_t &termList)
             string notation = (termList[i].second).second;
             pair<string, vector<int>> nEpiPair(notation,
                                                termList[i].second.first);
-            nEPI.push_back(nEpiPair);
+            if (!(find(nEPI.begin(), nEPI.end(), nEpiPair) != nEPI.end()))
+            {
+                nEPI.push_back(nEpiPair);
+            }
         }
     }
 
@@ -440,7 +444,8 @@ void debugOutput(const vector<string> &trueCombination,
         cout << endl;
     }
 
-    cout << endl;
+    cout << endl
+         << "PIP2" << endl;
 
     for (auto &epi : primeImplicantPair.second)
     {
