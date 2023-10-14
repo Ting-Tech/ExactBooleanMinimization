@@ -47,7 +47,7 @@ GCC/Clang
 
 
 
-## Test Result
+## Example case
 
 ### Case 1
 
@@ -169,6 +169,99 @@ GCC/Clang
 11-10- 1
 .e
 ```
+
+
+
+## Test case
+### Case 1
+
+[example/case1](./example/case4)
+
+#### Input PLA
+
+``` pla
+.i 4
+.o 1
+.ilb a b c d
+.ob f
+.p 7
+001- 1
+0111 1
+10-1 1
+1101 1
+0001 -
+1010 -
+1111 -
+.e
+```
+
+#### Output PLA
+
+``` dot
+
+```
+
+
+
+### Case 2
+[example/case2](./example/case5)
+
+#### Input PLA
+
+``` pla
+.i 5
+.o 1
+.ilb a b c d e
+.ob f
+.p 8
+0110- 1
+-1000 1
+0-00- -
+01-01 1
+0-101 1
+10-10 1
+1-1-0 1
+010-- 1
+.e
+```
+
+#### Output PLA
+
+``` dot
+
+```
+
+
+
+### Case 3
+
+[example/case3](./example/case6)
+
+#### Input PLA
+
+``` pla
+.i 6
+.o 1
+.ilb a b c d e g
+.ob f
+.p 8
+00--00 1
+1-11-- -
+-11-01 1
+0-1110 1
+11-011 1
+011101 1
+-11--0 1
+11-0-1 1
+.e
+```
+
+#### Output PLA
+
+``` dot
+
+```
+
 
 
 
