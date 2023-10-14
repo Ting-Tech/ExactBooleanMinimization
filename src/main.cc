@@ -11,6 +11,41 @@ using namespace std;
 
 typedef vector<pair<int, pair<vector<int>, string>>> termList_t;
 
+void outPutPlaFiles(string fileName, const char &ob,
+                    const vector<pair<string, vector<int>>> &epi,
+                    const vector<vector<string>> &feasibleSolutions)
+{
+    ofstream outputFile;
+    outputFile.open(fileName);
+
+    vector<string> p;
+    for (size_t i = 0; i < epi.size(); i++)
+    {
+        p.push_back(epi[i].first);
+    }
+    for (size_t i = 0; i < feasibleSolutions[0].size(); i++)
+    {
+        p.push_back(feasibleSolutions[0][i]);
+    }
+
+    outputFile << ".i " << feasibleSolutions[0][0].length() << endl
+               << ".o 1" << endl
+               << ".ilb ";
+    for (size_t i = 0; i < feasibleSolutions[0][0].length(); i++)
+    {
+        outputFile << (char)('a' + i) << " ";
+    }
+    outputFile << endl
+               << ".ob " << ob << endl
+               << ".p " << p.size() << endl;
+    for (auto &notation : p)
+    {
+        outputFile << notation << " 1" << endl;
+    }
+    outputFile << ".e";
+    outputFile.close();
+}
+
 vector<vector<string>> feasibleSolutions(vector<vector<vector<string>>>
                                              petrickMethodResult)
 {
@@ -433,7 +468,7 @@ void debugOutput(const vector<string> &trueCombination,
     }
 }
 
-void commendHandler(ifstream &inputFile, ofstream &outputFile,
+void commendHandler(ifstream &inputFile, string filename,
                     const bool &debugMode)
 {
     char ob;
@@ -448,6 +483,7 @@ void commendHandler(ifstream &inputFile, ofstream &outputFile,
     pair<vector<pair<string, vector<int>>>, vector<pair<string, vector<int>>>>
         primeImplicantPair;
     vector<vector<vector<string>>> petrickMethodResult;
+    vector<vector<string>> feasibleSolutionsResult;
 
     while (getline(inputFile, line))
     {
@@ -505,7 +541,8 @@ void commendHandler(ifstream &inputFile, ofstream &outputFile,
             _twoLitteralTerms = simplification(_threeLitteralTerms);
             primeImplicantPair = findEssentialPrimeImplicant(_twoLitteralTerms);
             petrickMethodResult = petrickMethod(primeImplicantPair);
-            feasibleSolutions(petrickMethodResult);
+            feasibleSolutionsResult = feasibleSolutions(petrickMethodResult);
+            outPutPlaFiles(filename, ob, primeImplicantPair.first, feasibleSolutionsResult);
         }
 
         else
@@ -526,18 +563,16 @@ void commendHandler(ifstream &inputFile, ofstream &outputFile,
 int main(int argc, char *argv[])
 {
     ifstream inputFile;
-    ofstream outputFile;
     inputFile.open(argv[1]);
-    outputFile.open(argv[2]);
 
     if (argc == 3)
     {
-        commendHandler(inputFile, outputFile, false);
+        commendHandler(inputFile, argv[2], false);
     }
     else if (argc == 4)
     {
         if (string(argv[3]) == "debug")
-            commendHandler(inputFile, outputFile, true);
+            commendHandler(inputFile, argv[2], true);
     }
     else
     {
@@ -546,6 +581,5 @@ int main(int argc, char *argv[])
     }
 
     inputFile.close();
-    outputFile.close();
     return 0;
 }
