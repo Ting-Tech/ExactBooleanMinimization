@@ -16,9 +16,16 @@ vector<vector<string>> feasibleSolutions(vector<vector<vector<string>>>
 {
     vector<vector<string>> result;
 
+    int minLength = petrickMethodResult[0][0].size();
+
     for (auto &minterms : petrickMethodResult[0])
     {
-        if (minterms.size() < 3)
+        if (minterms.size() < minLength)
+            minLength = minterms.size();
+    }
+    for (auto &minterms : petrickMethodResult[0])
+    {
+        if (minterms.size() == minLength)
             result.push_back(minterms);
     }
 
