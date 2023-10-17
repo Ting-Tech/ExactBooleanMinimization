@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdio.h>
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -23,15 +24,19 @@ void outPutPlaFiles(string fileName, const char &ob,
     {
         p.push_back(epi[i].first);
     }
-    for (size_t i = 0; i < feasibleSolutions[0].size(); i++)
+
+    if (feasibleSolutions.size() != 0)
     {
-        p.push_back(feasibleSolutions[0][i]);
+        for (size_t i = 0; i < feasibleSolutions[0].size(); i++)
+        {
+            p.push_back(feasibleSolutions[0][i]);
+        }
     }
 
-    outputFile << ".i " << feasibleSolutions[0][0].length() << endl
+    outputFile << ".i " << epi[0].first.length() << endl
                << ".o 1" << endl
                << ".ilb ";
-    for (size_t i = 0; i < feasibleSolutions[0][0].length(); i++)
+    for (size_t i = 0; i < epi[0].first.length(); i++)
     {
         outputFile << (char)('a' + i) << " ";
     }
@@ -51,6 +56,10 @@ vector<vector<string>> feasibleSolutions(vector<vector<vector<string>>>
 {
     vector<vector<string>> result;
 
+    if (petrickMethodResult.size() == 0)
+    {
+        return result;
+    }
     int minLength = petrickMethodResult[0][0].size();
 
     for (auto &minterms : petrickMethodResult[0])
@@ -121,7 +130,8 @@ petrickMethod(
         result.push_back(feasibleSolutions);
     }
 
-    while (result.size() != 1)
+    // for (size_t u = 0; u < 1; u++)
+    while (result.size() > 1)
     {
         vector<vector<string>> feasibleSolutions;
         for (size_t i = 0; i < result[0].size(); i++)
@@ -175,12 +185,41 @@ petrickMethod(
 }
 
 pair<vector<pair<string, vector<int>>>, vector<pair<string, vector<int>>>>
-findEssentialPrimeImplicant(const termList_t &termList)
+findEssentialPrimeImplicant(termList_t termList,
+                            vector<string> dontCareCombination)
 {
+    vector<int> dontcareMinterm;
     vector<int> epiIndex;
     vector<pair<string, vector<int>>> epi;
     vector<pair<string, vector<int>>> nEPI;
     map<int, int> mintermsMap; // m幾 在第幾個minterm行
+
+    for (auto &dontcare : dontCareCombination)
+    {
+        dontcareMinterm.push_back(stoi(dontcare, 0, 2));
+    }
+
+    for (size_t i = 0; i < termList.size(); i++)
+    {
+        termList_t newTermList;
+        vector<int> newMinterms;
+        for (size_t j = 0; j < termList[i].second.first.size(); j++)
+        {
+            if (!(find(dontcareMinterm.begin(),
+                       dontcareMinterm.end(), termList[i].second.first[j]) !=
+                  dontcareMinterm.end()))
+            {
+                newMinterms.push_back(termList[i].second.first[j]);
+            }
+        }
+
+        if (newMinterms.size() != 0)
+        {
+            termList[i].second.first = newMinterms;
+            newTermList.push_back(termList[i]);
+        }
+    }
+
     for (size_t i = 0; i < termList.size(); i++)
     {
         for (size_t j = 0; j < ((termList[i].second).first).size(); j++)
@@ -188,7 +227,7 @@ findEssentialPrimeImplicant(const termList_t &termList)
             int targetIndex = (((termList[i].second).first)[j]);
             if (mintermsMap.find(targetIndex) != mintermsMap.end())
             {
-                mintermsMap[targetIndex] += (i * termList.size());
+                mintermsMap[targetIndex] += ((i + 1) * termList.size());
             }
             else
             {
@@ -199,13 +238,33 @@ findEssentialPrimeImplicant(const termList_t &termList)
 
     for (auto &minterms : mintermsMap)
     {
-        if (minterms.second < termList.size() - 1)
+        if (minterms.second < termList.size())
         {
             int mintermIndex = minterms.second;
             string notation = (termList[minterms.second].second).second;
+
+            vector<int> terms;
+            for (auto &m : termList[mintermIndex].second.first)
+            {
+                bool same = false;
+                for (auto &dontcare : dontcareMinterm)
+                {
+                    if (dontcare == m)
+                    {
+                        same = true;
+                        break;
+                    }
+                }
+                if (!same)
+                {
+                    terms.push_back(m);
+                }
+            }
+
             pair<string, vector<int>>
-                epiPair(notation, termList[mintermIndex].second.first);
-            if (!(find(epi.begin(), epi.end(), epiPair) != epi.end()))
+                epiPair(notation, terms);
+            if (!(find(epi.begin(), epi.end(), epiPair) != epi.end()) &&
+                terms.size() != 0)
             {
                 epi.push_back(epiPair);
                 epiIndex.push_back(minterms.second);
@@ -218,9 +277,28 @@ findEssentialPrimeImplicant(const termList_t &termList)
         if (!(count(epiIndex.begin(), epiIndex.end(), i)))
         {
             string notation = (termList[i].second).second;
-            pair<string, vector<int>> nEpiPair(notation,
-                                               termList[i].second.first);
-            if (!(find(nEPI.begin(), nEPI.end(), nEpiPair) != nEPI.end()))
+
+            vector<int> terms;
+            for (auto &m : termList[i].second.first)
+            {
+                bool active = false;
+                for (auto &dontcare : dontcareMinterm)
+                {
+                    if (dontcare == m)
+                    {
+                        active = true;
+                        break;
+                    }
+                }
+                if (!active)
+                {
+                    terms.push_back(m);
+                }
+            }
+
+            pair<string, vector<int>> nEpiPair(notation, terms);
+            if (!(find(nEPI.begin(), nEPI.end(), nEpiPair) != nEPI.end()) &&
+                terms.size() != 0)
             {
                 nEPI.push_back(nEpiPair);
             }
@@ -232,9 +310,44 @@ findEssentialPrimeImplicant(const termList_t &termList)
     return result;
 }
 
+bool checkIsSimplest(const termList_t &inputList)
+{
+    for (size_t i = 0; i < (inputList.size() - 1); i++)
+    {
+        for (size_t j = (i + 1); j < inputList.size(); j++)
+        {
+            if (inputList[j].first ==
+                (inputList[i].first + 1))
+            {
+                int differentIndex = 0, differentCount = 0;
+                for (size_t k = 0;
+                     k < ((inputList[i].second).second).length();
+                     k++)
+                {
+                    if ((inputList[i].second).second[k] !=
+                        (inputList[j].second).second[k])
+                    {
+                        differentCount++;
+                        differentIndex = k;
+                    }
+                }
+                if (differentCount == 1)
+                    return true;
+            }
+        }
+    }
+    return false;
+}
+
 termList_t simplification(const termList_t &inputList)
 {
     termList_t result;
+    vector<bool> beSimple;
+
+    for (auto &num : inputList)
+    {
+        beSimple.push_back(false);
+    }
 
     for (size_t i = 0; i < (inputList.size() - 1); i++)
     {
@@ -254,13 +367,14 @@ termList_t simplification(const termList_t &inputList)
                         differentCount++;
                         differentIndex = k;
                     }
-                    else if (differentCount > 1)
-                        break;
                 }
                 if (differentCount == 1)
                 {
                     vector<int> resultMidterms;
                     string resultLiteralTerm;
+
+                    beSimple[i] = true;
+                    beSimple[j] = true;
 
                     for (auto &terms : (inputList[i].second).first)
                     {
@@ -291,8 +405,14 @@ termList_t simplification(const termList_t &inputList)
                     sort(result.begin(), result.end());
                 }
             }
-            else if (inputList[j].first > (i + 1))
-                break;
+        }
+    }
+
+    for (size_t i = 0; i < beSimple.size(); i++)
+    {
+        if (beSimple[i] == false)
+        {
+            result.push_back(inputList[i]);
         }
     }
 
@@ -382,21 +502,26 @@ void debugOutput(const vector<string> &trueCombination,
                  pair<vector<pair<string, vector<int>>>,
                       vector<pair<string, vector<int>>>>
                      primeImplicantPair,
-                 const vector<vector<vector<string>>> &petrickMethod)
+                 const vector<vector<vector<string>>> &petrickMethod,
+                 vector<vector<string>> feasibleSolutions)
 {
+    cout << endl
+         << "true combination:" << endl;
     for (auto &trueCom : trueCombination)
     {
         cout << trueCom << endl;
     }
 
-    cout << endl;
+    cout << endl
+         << "dont casse:" << endl;
 
     for (auto &dontCare : dontCareCombination)
     {
-        cout << dontCare << endl;
+        cout << dontCare << " " << stoi(dontCare, 0, 2) << endl;
     }
 
-    cout << endl;
+    cout << endl
+         << "input term list:" << endl;
 
     for (auto &terms : inputList)
     {
@@ -408,7 +533,8 @@ void debugOutput(const vector<string> &trueCombination,
         cout << (terms.second).second << endl;
     }
 
-    cout << endl;
+    cout << endl
+         << "simplication:" << endl;
 
     for (auto &terms : _threeLitteralTerms)
     {
@@ -420,19 +546,21 @@ void debugOutput(const vector<string> &trueCombination,
         cout << (terms.second).second << endl;
     }
 
-    cout << endl;
+    // cout << endl
+    //      << "second simplication:" << endl;
 
-    for (auto &terms : _twoLitteralTerms)
-    {
-        cout << terms.first << " ";
-        for (auto &literals : (terms.second).first)
-        {
-            cout << "m" << literals << " ";
-        }
-        cout << (terms.second).second << endl;
-    }
+    // for (auto &terms : _twoLitteralTerms)
+    // {
+    //     cout << terms.first << " ";
+    //     for (auto &literals : (terms.second).first)
+    //     {
+    //         cout << "m" << literals << " ";
+    //     }
+    //     cout << (terms.second).second << endl;
+    // }
 
-    cout << endl;
+    cout << endl
+         << "epi:" << endl;
 
     for (auto &epi : primeImplicantPair.first)
     {
@@ -445,7 +573,20 @@ void debugOutput(const vector<string> &trueCombination,
     }
 
     cout << endl
-         << "PIP2" << endl;
+         << "not epi:" << endl;
+
+    for (auto &nEpi : primeImplicantPair.second)
+    {
+        cout << nEpi.first << " ";
+        for (auto &minterm : nEpi.second)
+        {
+            cout << minterm << " ";
+        }
+        cout << endl;
+    }
+
+    cout << endl
+         << "prime implicant:" << endl;
 
     for (auto &epi : primeImplicantPair.second)
     {
@@ -457,7 +598,8 @@ void debugOutput(const vector<string> &trueCombination,
         cout << endl;
     }
 
-    cout << endl;
+    cout << endl
+         << "petrick metod result:" << endl;
 
     for (auto &feasibleSolutions : petrickMethod)
     {
@@ -468,6 +610,17 @@ void debugOutput(const vector<string> &trueCombination,
                 cout << "(" << minterm << ")";
             }
             cout << " + ";
+        }
+        cout << endl;
+    }
+
+    cout << endl
+         << "feasible solution:" << endl;
+    for (auto &solutions : feasibleSolutions)
+    {
+        for (auto &solution : solutions)
+        {
+            cout << solution << " ";
         }
         cout << endl;
     }
@@ -483,8 +636,7 @@ void commendHandler(ifstream &inputFile, string filename,
     vector<string> trueCombination;
     vector<string> dontCareCombination;
     termList_t inputList;
-    termList_t _threeLitteralTerms;
-    termList_t _twoLitteralTerms;
+    termList_t termListSimple;
     pair<vector<pair<string, vector<int>>>, vector<pair<string, vector<int>>>>
         primeImplicantPair;
     vector<vector<vector<string>>> petrickMethodResult;
@@ -542,12 +694,18 @@ void commendHandler(ifstream &inputFile, string filename,
                 trueCombination.push_back(combination);
             }
             inputList = sortCombination(trueCombination);
-            _threeLitteralTerms = simplification(inputList);
-            _twoLitteralTerms = simplification(_threeLitteralTerms);
-            primeImplicantPair = findEssentialPrimeImplicant(_twoLitteralTerms);
+            termListSimple = simplification(inputList);
+            while (checkIsSimplest(termListSimple))
+            {
+                termListSimple = simplification(termListSimple);
+            }
+            primeImplicantPair =
+                findEssentialPrimeImplicant(termListSimple,
+                                            dontCareCombination);
             petrickMethodResult = petrickMethod(primeImplicantPair);
             feasibleSolutionsResult = feasibleSolutions(petrickMethodResult);
-            outPutPlaFiles(filename, ob, primeImplicantPair.first, feasibleSolutionsResult);
+            outPutPlaFiles(filename, ob,
+                           primeImplicantPair.first, feasibleSolutionsResult);
         }
 
         else
@@ -558,10 +716,11 @@ void commendHandler(ifstream &inputFile, string filename,
         debugOutput(trueCombination,
                     dontCareCombination,
                     inputList,
-                    _threeLitteralTerms,
-                    _twoLitteralTerms,
+                    termListSimple,
+                    termListSimple,
                     primeImplicantPair,
-                    petrickMethodResult);
+                    petrickMethodResult,
+                    feasibleSolutionsResult);
     }
 }
 
