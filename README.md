@@ -123,13 +123,16 @@ GCC/Clang
 #### Output PLA
 
 ``` dot
-.i 6
+.i 5
 .o 1
-.ilb a b c d e f 
+.ilb a b c d e 
 .ob f
-.p 2
-1-01-1 1
-11-10- 1
+.p 5
+0-11- 1
+-01-1 1
+-1-10 1
+010-1 1
+1-101 1
 .e
 ```
 
@@ -164,7 +167,10 @@ GCC/Clang
 .o 1
 .ilb a b c d e f 
 .ob f
-.p 2
+.p 5
+001000 1
+-0111- 1
+0-1011 1
 1-01-1 1
 11-10- 1
 .e
@@ -198,7 +204,15 @@ GCC/Clang
 #### Output PLA
 
 ``` dot
-
+.i 4
+.o 1
+.ilb a b c d 
+.ob f
+.p 3
+-01- 1
+--11 1
+1--1 1
+.e
 ```
 
 
@@ -228,7 +242,17 @@ GCC/Clang
 #### Output PLA
 
 ``` dot
-
+.i 5
+.o 1
+.ilb a b c d e 
+.ob f
+.p 5
+0--01 1
+010-- 1
+10-10 1
+1-1-0 1
+-1-00 1
+.e
 ```
 
 
@@ -259,7 +283,17 @@ GCC/Clang
 #### Output PLA
 
 ``` dot
-
+.i 6
+.o 1
+.ilb a b c d e f 
+.ob f
+.p 5
+00--00 1
+11-0-1 1
+--11-0 1
+-11--0 1
+-11-0- 1
+.e
 ```
 
 
