@@ -43,10 +43,21 @@ void outPutPlaFiles(string fileName, const char &ob,
     outputFile << endl
                << ".ob " << ob << endl
                << ".p " << p.size() << endl;
+    cout << "Total number of terms: " << p.size() << endl;
+    int numLiteral = 0;
     for (auto &notation : p)
     {
         outputFile << notation << " 1" << endl;
+        for (auto &literal : notation)
+        {
+            if (literal == '0' || literal == '1')
+            {
+                numLiteral++;
+            }
+        }
     }
+    cout << "Total number of literals: " << numLiteral << endl;
+
     outputFile << ".e";
     outputFile.close();
 }
