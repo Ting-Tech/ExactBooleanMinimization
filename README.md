@@ -1,6 +1,6 @@
 # ExactBooleanMinimization
 
-Reads a single-output Boolean function in PLA format and outputs the corresponding ROBDD in pictorial DOT format.
+Reads a Boolean function in PLA format and output the PLA format file after Exact Boolean Minimization.
 
 
 
@@ -31,7 +31,7 @@ GCC/Clang
 ## Run
 
 ```bash
-./main [input_pla] [output_pla]
+./ExactBooleanMinimization [input_pla] [output_pla]
 ```
 
 
@@ -47,11 +47,11 @@ GCC/Clang
 
 
 
-## Example case
+## TA Example case
 
 ### Case 1
 
-[example/case1](./example/case1)
+[example/case1](./example/testcase/case1)
 
 #### Input PLA
 
@@ -73,7 +73,7 @@ GCC/Clang
 
 #### Output PLA
 
-``` dot
+``` pla
 .i 4
 .o 1
 .ilb a b c d 
@@ -89,7 +89,7 @@ GCC/Clang
 
 
 ### Case 2
-[example/case2](./example/case2)
+[example/case2](./example/testcase/case2)
 
 #### Input PLA
 
@@ -122,7 +122,7 @@ GCC/Clang
 
 #### Output PLA
 
-``` dot
+``` pla
 .i 5
 .o 1
 .ilb a b c d e 
@@ -140,7 +140,7 @@ GCC/Clang
 
 ### Case 3
 
-[example/case3](./example/case3)
+[example/case3](./example/testcase/case3)
 
 #### Input PLA
 
@@ -162,7 +162,7 @@ GCC/Clang
 
 #### Output PLA
 
-``` dot
+``` pla
 .i 6
 .o 1
 .ilb a b c d e f 
@@ -178,10 +178,10 @@ GCC/Clang
 
 
 
-## Test case
+## Mine Test case
 ### Case 1
 
-[example/case1](./example/case4)
+[example/testcase/case4](./example/testcase/case4)
 
 #### Input PLA
 
@@ -203,7 +203,7 @@ GCC/Clang
 
 #### Output PLA
 
-``` dot
+``` pla
 .i 4
 .o 1
 .ilb a b c d 
@@ -218,7 +218,7 @@ GCC/Clang
 
 
 ### Case 2
-[example/case2](./example/case5)
+[example/testcase/case5](./example/testcase/case5)
 
 #### Input PLA
 
@@ -241,7 +241,7 @@ GCC/Clang
 
 #### Output PLA
 
-``` dot
+``` pla
 .i 5
 .o 1
 .ilb a b c d e 
@@ -259,7 +259,7 @@ GCC/Clang
 
 ### Case 3
 
-[example/case3](./example/case6)
+[example/testcase/case6](./example/testcase/case6)
 
 #### Input PLA
 
@@ -282,7 +282,7 @@ GCC/Clang
 
 #### Output PLA
 
-``` dot
+``` pla
 .i 6
 .o 1
 .ilb a b c d e f 
@@ -303,4 +303,4 @@ GCC/Clang
 
 Email: allen0523win@gmail.com
 
-Email: B11130225@mail.ntust.edu.tw  
+Email: B11130225@mail.ntust.edu.tw 
